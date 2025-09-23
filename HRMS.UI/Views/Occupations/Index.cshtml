@@ -1,0 +1,165 @@
+@{
+    ViewData["Title"] = "Occupations";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Occupations</h1>
+    <button type="button" class="btn btn-primary" id="addOccupationBtn" title="Add">
+        <i class="bi bi-plus-circle"></i>
+    </button>
+</div>
+
+<div id="occupationListContainer" aria-live="polite" aria-busy="true">
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="occupationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="occupationDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const listContainer = document.getElementById("occupationListContainer");
+            const modalElement = document.getElementById("occupationModal");
+            const deleteModalElement = document.getElementById("occupationDeleteModal");
+            const occupationModal = new bootstrap.Modal(modalElement);
+            const deleteModal = new bootstrap.Modal(deleteModalElement);
+
+            const setModalContent = (element, html) => {
+                element.querySelector('.modal-content').innerHTML = html;
+            };
+
+            const loadList = () => {
+                listContainer.setAttribute("aria-busy", "true");
+                fetch('@Url.Action("List")')
+                    .then(response => response.text())
+                    .then(html => {
+                        listContainer.innerHTML = html;
+                        listContainer.setAttribute("aria-busy", "false");
+                        attachRowHandlers();
+                    })
+                    .catch(() => {
+                        listContainer.innerHTML = '<div class="alert alert-danger">Unable to load occupations.</div>';
+                        listContainer.setAttribute("aria-busy", "false");
+                    });
+            };
+
+            const bindFormSubmission = (form, element, modalInstance) => {
+                if (!form) {
+                    return;
+                }
+
+                form.addEventListener("submit", event => {
+                    event.preventDefault();
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                        method: form.method,
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => {
+                            const contentType = response.headers.get("content-type") || "";
+                            if (contentType.includes("application/json")) {
+                                return response.json();
+                            }
+                            return response.text().then(html => ({ html }));
+                        })
+                        .then(result => {
+                            if (result.success) {
+                                modalInstance.hide();
+                                loadList();
+                            } else if (result.html) {
+                                setModalContent(element, result.html);
+                                bindFormSubmission(element.querySelector('form'), element, modalInstance);
+                            }
+                        })
+                        .catch(() => {
+                            setModalContent(element, '<div class="modal-body text-danger">An unexpected error occurred.</div>');
+                        });
+                }, { once: true });
+            };
+
+            const openFormModal = url => {
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        setModalContent(modalElement, html);
+                        occupationModal.show();
+                        bindFormSubmission(modalElement.querySelector('form'), modalElement, occupationModal);
+                    })
+                    .catch(() => {
+                        setModalContent(modalElement, '<div class="modal-body text-danger">Unable to load the form.</div>');
+                        occupationModal.show();
+                    });
+            };
+
+            const openDeleteModal = url => {
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        setModalContent(deleteModalElement, html);
+                        deleteModal.show();
+                        const form = deleteModalElement.querySelector('form');
+                        if (form) {
+                            form.addEventListener('submit', event => {
+                                event.preventDefault();
+                                const formData = new FormData(form);
+                                fetch(form.action, {
+                                    method: form.method,
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                    .then(response => response.json())
+                                    .then(result => {
+                                        if (result.success) {
+                                            deleteModal.hide();
+                                            loadList();
+                                        }
+                                    })
+                                    .catch(() => {
+                                        setModalContent(deleteModalElement, '<div class="modal-body text-danger">Unable to delete the occupation.</div>');
+                                    });
+                            }, { once: true });
+                        }
+                    })
+                    .catch(() => {
+                        setModalContent(deleteModalElement, '<div class="modal-body text-danger">Unable to load the confirmation dialog.</div>');
+                        deleteModal.show();
+                    });
+            };
+
+            const attachRowHandlers = () => {
+                listContainer.querySelectorAll('[data-action="edit"]').forEach(button => {
+                    button.addEventListener('click', () => openFormModal(button.dataset.url));
+                });
+
+                listContainer.querySelectorAll('[data-action="delete"]').forEach(button => {
+                    button.addEventListener('click', () => openDeleteModal(button.dataset.url));
+                });
+            };
+
+            document.getElementById('addOccupationBtn').addEventListener('click', () => {
+                openFormModal('@Url.Action("Create")');
+            });
+
+            loadList();
+        });
+    </script>
+}

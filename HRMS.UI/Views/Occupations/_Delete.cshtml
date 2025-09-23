@@ -1,0 +1,17 @@
+@model Occupation
+
+<div class="modal-header">
+    <h5 class="modal-title">Delete Occupation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-action="Delete" method="post">
+    <input asp-for="Id" type="hidden" />
+    <div class="modal-body">
+        <p class="mb-0">Are you sure you want to delete <strong>@Model.Name</strong>?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-danger" title="Delete">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</form>
