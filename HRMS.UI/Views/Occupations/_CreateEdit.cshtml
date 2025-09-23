@@ -1,0 +1,22 @@
+@model OccupationViewModel
+@{
+    var isEdit = Model.Id > 0;
+    var modalTitle = isEdit ? "Edit Occupation" : "Add Occupation";
+    ViewData["Title"] = modalTitle;
+}
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-controller="Occupations" method="post" id="occupationForm">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <input type="hidden" asp-for="Id" />
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+            @(isEdit ? "Save Changes" : "Create")
+        </button>
+    </div>
+</form>

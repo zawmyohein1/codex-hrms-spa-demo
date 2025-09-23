@@ -1,0 +1,41 @@
+@model IEnumerable<DepartmentViewModel>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info" role="alert">
+        No departments have been created yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var department in Model)
+            {
+                <tr data-id="@department.Id">
+                    <td>@department.Name</td>
+                    <td class="text-end">
+                        <div class="table-actions justify-content-end">
+                            <button type="button" class="btn btn-outline-primary icon-only-button js-edit" data-id="@department.Id" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                                <span class="visually-hidden">Edit</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger icon-only-button js-delete" data-id="@department.Id" title="Delete">
+                                <i class="bi bi-trash"></i>
+                                <span class="visually-hidden">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

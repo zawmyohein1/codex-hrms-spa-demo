@@ -1,0 +1,121 @@
+@{
+    ViewData["Title"] = "Occupations";
+}
+
+<div id="occupationsApp"
+     data-list-url="@Url.Action("LoadList")"
+     data-create-url="@Url.Action("Create")"
+     data-edit-url-template="@Url.Action("Edit", new { id = "__id__" })"
+     data-delete-url-template="@Url.Action("Delete", new { id = "__id__" })">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Occupations</h1>
+        <button type="button" class="btn btn-primary icon-only-button" id="addOccupationBtn" title="Add Occupation">
+            <i class="bi bi-plus-circle"></i>
+            <span class="visually-hidden">Add</span>
+        </button>
+    </div>
+    <div id="occupationsList" class="position-relative">
+        <div class="text-center py-5" id="occupationsLoading">
+            <div class="spinner-border" role="status" aria-hidden="true"></div>
+            <div class="mt-2">Loading occupations...</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="spaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const app = document.getElementById('occupationsApp');
+            if (!app) {
+                return;
+            }
+
+            const listContainer = document.getElementById('occupationsList');
+            const listUrl = app.dataset.listUrl;
+            const createUrl = app.dataset.createUrl;
+            const editTemplate = app.dataset.editUrlTemplate;
+            const deleteTemplate = app.dataset.deleteUrlTemplate;
+            const addButton = document.getElementById('addOccupationBtn');
+            const modalElement = document.getElementById('spaModal');
+
+            const resolveUrl = (template, id) => template.replace('__id__', id);
+
+            const showError = (message) => {
+                listContainer.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+            };
+
+            const refreshList = async () => {
+                try {
+                    const html = await window.hrms.loadPartial(listUrl);
+                    listContainer.innerHTML = html;
+                } catch (error) {
+                    showError('Unable to load occupations.');
+                }
+            };
+
+            addButton.addEventListener('click', async () => {
+                try {
+                    const html = await window.hrms.loadPartial(createUrl);
+                    window.hrms.showModal('Add Occupation', html);
+                } catch (error) {
+                    showError('Unable to load the create form.');
+                }
+            });
+
+            listContainer.addEventListener('click', async (event) => {
+                const target = event.target.closest('button');
+                if (!target) {
+                    return;
+                }
+
+                const id = target.dataset.id;
+                if (!id) {
+                    return;
+                }
+
+                try {
+                    if (target.classList.contains('js-edit')) {
+                        const html = await window.hrms.loadPartial(resolveUrl(editTemplate, id));
+                        window.hrms.showModal('Edit Occupation', html);
+                    } else if (target.classList.contains('js-delete')) {
+                        const html = await window.hrms.loadPartial(resolveUrl(deleteTemplate, id));
+                        window.hrms.showModal('Delete Occupation', html);
+                    }
+                } catch (error) {
+                    showError('Unable to load the requested form.');
+                }
+            });
+
+            modalElement.addEventListener('submit', async (event) => {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                event.preventDefault();
+                const result = await window.hrms.submitForm(form);
+                if (result.success) {
+                    listContainer.innerHTML = result.html;
+                    window.hrms.hideModal();
+                } else {
+                    const currentTitle = modalElement.querySelector('.modal-title')?.textContent ?? '';
+                    window.hrms.showModal(currentTitle, result.html);
+                }
+            });
+
+            refreshList();
+        });
+    </script>
+}

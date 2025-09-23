@@ -1,0 +1,30 @@
+body {
+    padding-top: 4.5rem;
+}
+
+.navbar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.icon-only-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.55rem;
+}
+
+.icon-only-button i {
+    font-size: 1.1rem;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.modal-header .btn-close {
+    margin: 0;
+}
