@@ -1,9 +1,302 @@
+@model EmployeeIndexViewModel
 @{
     ViewData["Title"] = "Employees";
 }
 
-<div class="text-center py-5">
-    <i class="bi bi-people-fill display-4 text-secondary"></i>
-    <h1 class="mt-3">Employees</h1>
-    <p class="text-muted">Employee management is coming soon.</p>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <h1 class="h3 mb-0">Employees</h1>
+    <button type="button" class="btn btn-primary" id="addEmployeeBtn" title="Add">
+        <i class="bi bi-plus-circle"></i>
+    </button>
 </div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="employeeFilterForm" class="row g-3 align-items-end" autocomplete="off">
+            <div class="col-12 col-md-4">
+                <label for="searchTerm" class="form-label">Search</label>
+                <input type="text" class="form-control" id="searchTerm" name="searchTerm" placeholder="Employee no. or name">
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <label for="departmentFilter" class="form-label">Department</label>
+                <select id="departmentFilter" class="form-select" asp-items="Model.DepartmentOptions">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3 col-lg-2">
+                <label for="occupationFilter" class="form-label">Occupation</label>
+                <select id="occupationFilter" class="form-select" asp-items="Model.OccupationOptions">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2 col-lg-1">
+                <label for="pageSize" class="form-label">Page Size</label>
+                <select id="pageSize" class="form-select">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2 col-lg-1 d-grid">
+                <button type="submit" class="btn btn-outline-primary" title="Search">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="employeeAlert" class="mb-3" aria-live="polite"></div>
+
+<div id="employeeListContainer" aria-live="polite" aria-busy="true">
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="employeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="employeeDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="employeeDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const listContainer = document.getElementById("employeeListContainer");
+            const filterForm = document.getElementById("employeeFilterForm");
+            const searchInput = document.getElementById("searchTerm");
+            const departmentFilter = document.getElementById("departmentFilter");
+            const occupationFilter = document.getElementById("occupationFilter");
+            const pageSizeSelect = document.getElementById("pageSize");
+            const addButton = document.getElementById("addEmployeeBtn");
+            const alertContainer = document.getElementById("employeeAlert");
+            const employeeModalElement = document.getElementById("employeeModal");
+            const employeeDetailsModalElement = document.getElementById("employeeDetailsModal");
+            const employeeDeleteModalElement = document.getElementById("employeeDeleteModal");
+
+            const employeeModal = new bootstrap.Modal(employeeModalElement);
+            const detailsModal = new bootstrap.Modal(employeeDetailsModalElement);
+            const deleteModal = new bootstrap.Modal(employeeDeleteModalElement);
+
+            const setModalContent = (element, html) => {
+                element.querySelector(".modal-content").innerHTML = html;
+            };
+
+            const showAlert = (type, message) => {
+                if (!message) {
+                    alertContainer.innerHTML = "";
+                    return;
+                }
+
+                alertContainer.innerHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+            };
+
+            let currentPage = 1;
+
+            const buildQuery = page => {
+                const params = new URLSearchParams();
+                const search = searchInput.value.trim();
+                if (search) {
+                    params.append("searchTerm", search);
+                }
+                if (departmentFilter.value) {
+                    params.append("departmentId", departmentFilter.value);
+                }
+                if (occupationFilter.value) {
+                    params.append("occupationId", occupationFilter.value);
+                }
+                params.append("page", page.toString());
+                params.append("pageSize", pageSizeSelect.value);
+                return params.toString();
+            };
+
+            const loadList = (page = 1) => {
+                currentPage = page;
+                listContainer.setAttribute("aria-busy", "true");
+                const query = buildQuery(page);
+                const url = query ? `@Url.Action("List")?${query}` : `@Url.Action("List")`;
+                fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        listContainer.innerHTML = html;
+                        listContainer.setAttribute("aria-busy", "false");
+                        attachRowHandlers();
+                    })
+                    .catch(() => {
+                        listContainer.innerHTML = '<div class="alert alert-danger" role="alert">Unable to load employees.</div>';
+                        listContainer.setAttribute("aria-busy", "false");
+                    });
+            };
+
+            const bindFormSubmission = (form, element, modalInstance, onSuccess) => {
+                if (!form) {
+                    return;
+                }
+
+                form.addEventListener("submit", event => {
+                    event.preventDefault();
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                        method: form.method,
+                        body: formData,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    })
+                        .then(response => {
+                            const contentType = response.headers.get("content-type") || "";
+                            if (contentType.includes("application/json")) {
+                                return response.json();
+                            }
+
+                            return response.text().then(html => ({ html }));
+                        })
+                        .then(result => {
+                            if (result.success) {
+                                modalInstance.hide();
+                                if (typeof onSuccess === "function") {
+                                    onSuccess(result);
+                                }
+                            } else if (result.html) {
+                                setModalContent(element, result.html);
+                                bindFormSubmission(element.querySelector("form"), element, modalInstance, onSuccess);
+                            } else {
+                                showAlert("danger", "An unexpected error occurred.");
+                            }
+                        })
+                        .catch(() => {
+                            showAlert("danger", "An unexpected error occurred.");
+                        });
+                }, { once: true });
+            };
+
+            const openFormModal = (url, onSuccess) => {
+                fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        setModalContent(employeeModalElement, html);
+                        employeeModal.show();
+                        bindFormSubmission(employeeModalElement.querySelector("form"), employeeModalElement, employeeModal, onSuccess);
+                    })
+                    .catch(() => {
+                        showAlert("danger", "Unable to load the form.");
+                    });
+            };
+
+            const openDetailsModal = url => {
+                fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        setModalContent(employeeDetailsModalElement, html);
+                        detailsModal.show();
+                    })
+                    .catch(() => {
+                        showAlert("danger", "Unable to load employee details.");
+                    });
+            };
+
+            const openDeleteModal = url => {
+                fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        setModalContent(employeeDeleteModalElement, html);
+                        deleteModal.show();
+                        const form = employeeDeleteModalElement.querySelector("form");
+                        bindFormSubmission(form, employeeDeleteModalElement, deleteModal, result => {
+                            showAlert("success", result.message || "Employee deleted successfully.");
+                            loadList(currentPage);
+                        });
+                    })
+                    .catch(() => {
+                        showAlert("danger", "Unable to load the confirmation dialog.");
+                    });
+            };
+
+            const attachRowHandlers = () => {
+                listContainer.querySelectorAll('[data-action="details"]').forEach(button => {
+                    button.addEventListener("click", () => openDetailsModal(button.dataset.url));
+                });
+
+                listContainer.querySelectorAll('[data-action="edit"]').forEach(button => {
+                    button.addEventListener("click", () => {
+                        openFormModal(button.dataset.url, result => {
+                            showAlert("success", result.message || "Employee updated successfully.");
+                            loadList(currentPage);
+                        });
+                    });
+                });
+
+                listContainer.querySelectorAll('[data-action="delete"]').forEach(button => {
+                    button.addEventListener("click", () => openDeleteModal(button.dataset.url));
+                });
+
+                listContainer.querySelectorAll('[data-action="page"]').forEach(button => {
+                    button.addEventListener("click", () => {
+                        const parent = button.closest('.page-item');
+                        if (parent && parent.classList.contains('disabled')) {
+                            return;
+                        }
+
+                        const targetPage = parseInt(button.dataset.page ?? "", 10);
+                        if (!Number.isNaN(targetPage) && targetPage !== currentPage) {
+                            loadList(targetPage);
+                        }
+                    });
+                });
+            };
+
+            addButton.addEventListener("click", () => {
+                openFormModal("@Url.Action("Create")", result => {
+                    showAlert("success", result.message || "Employee created successfully.");
+                    loadList(1);
+                });
+            });
+
+            filterForm.addEventListener("submit", event => {
+                event.preventDefault();
+                loadList(1);
+            });
+
+            departmentFilter.addEventListener("change", () => loadList(1));
+            occupationFilter.addEventListener("change", () => loadList(1));
+            pageSizeSelect.addEventListener("change", () => loadList(1));
+
+            loadList();
+        });
+    </script>
+}

@@ -1,0 +1,112 @@
+@model EmployeeFormViewModel
+@{
+    bool isNew = Model.Id == 0;
+    string title = isNew ? "Add Employee" : "Edit Employee";
+    string action = isNew ? "Create" : "Edit";
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">@title</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-action="@action" method="post" enctype="multipart/form-data">
+    @if (!isNew)
+    {
+        <input asp-for="Id" type="hidden" />
+    }
+    <input asp-for="ExistingPhotoUrl" type="hidden" />
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="EmpNo" class="form-label"></label>
+                <input asp-for="EmpNo" class="form-control" />
+                <span asp-validation-for="EmpNo" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EmpName" class="form-label"></label>
+                <input asp-for="EmpName" class="form-control" />
+                <span asp-validation-for="EmpName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DepartmentId" class="form-label"></label>
+                <select asp-for="DepartmentId" class="form-select" asp-items="Model.DepartmentOptions">
+                    <option value="">Select Department</option>
+                </select>
+                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OccupationId" class="form-label"></label>
+                <select asp-for="OccupationId" class="form-select" asp-items="Model.OccupationOptions">
+                    <option value="">Select Occupation</option>
+                </select>
+                <span asp-validation-for="OccupationId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="JobTitle" class="form-label"></label>
+                <input asp-for="JobTitle" class="form-control" />
+                <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Gender" class="form-label"></label>
+                <select asp-for="Gender" class="form-select">
+                    <option value="">Select Gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="HiredDate" class="form-label"></label>
+                <input asp-for="HiredDate" type="date" class="form-control" />
+                <span asp-validation-for="HiredDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ResignDate" class="form-label"></label>
+                <input asp-for="ResignDate" type="date" class="form-control" />
+                <span asp-validation-for="ResignDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DateOfBirth" class="form-label"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Address" class="form-label"></label>
+                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="PhotoFile" class="form-label"></label>
+                <input asp-for="PhotoFile" class="form-control" type="file" accept="image/*" />
+                <span asp-validation-for="PhotoFile" class="text-danger"></span>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                @if (!string.IsNullOrWhiteSpace(Model.ExistingPhotoUrl))
+                {
+                    <img src="@Url.Content(Model.ExistingPhotoUrl)" alt="Existing photo" class="rounded" style="max-width: 100%; height: auto;">
+                }
+                else
+                {
+                    <div class="text-muted">No photo uploaded.</div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success" title="Save">
+            <i class="bi bi-check-circle"></i>
+        </button>
+    </div>
+</form>
