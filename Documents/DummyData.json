@@ -1,0 +1,93 @@
+{
+  "Departments": [
+    { "Id": 1, "Name": "Human Resources" },
+    { "Id": 2, "Name": "Finance" },
+    { "Id": 3, "Name": "Information Technology" },
+    { "Id": 4, "Name": "Sales" },
+    { "Id": 5, "Name": "Operations" }
+  ],
+  "Occupations": [
+    { "Id": 1, "Name": "HR Executive" },
+    { "Id": 2, "Name": "Accountant" },
+    { "Id": 3, "Name": "Software Engineer" },
+    { "Id": 4, "Name": "Sales Executive" },
+    { "Id": 5, "Name": "Logistics Officer" }
+  ],
+  "Employees": [
+    {
+      "Id": 1,
+      "EmpNo": "E001",
+      "EmployeeName": "Alice Tan",
+      "Department": "Human Resources",
+      "Occupation": "HR Executive",
+      "JobTitle": "HR Specialist",
+      "Gender": "F",
+      "HiredDate": "2022-01-10",
+      "ResignDate": null,
+      "DOB": "1993-04-15",
+      "Phone": "90010001",
+      "Email": "alice.tan@test.local",
+      "Address": "10 Bedok North Rd"
+    },
+    {
+      "Id": 2,
+      "EmpNo": "E002",
+      "EmployeeName": "Ben Wong",
+      "Department": "Finance",
+      "Occupation": "Accountant",
+      "JobTitle": "Accountant",
+      "Gender": "M",
+      "HiredDate": "2021-03-05",
+      "ResignDate": null,
+      "DOB": "1990-08-22",
+      "Phone": "90010002",
+      "Email": "ben.wong@test.local",
+      "Address": "22 Tampines Ave"
+    },
+    {
+      "Id": 3,
+      "EmpNo": "E003",
+      "EmployeeName": "Charlie Lim",
+      "Department": "Information Technology",
+      "Occupation": "Software Engineer",
+      "JobTitle": "Full Stack Developer",
+      "Gender": "M",
+      "HiredDate": "2020-07-12",
+      "ResignDate": null,
+      "DOB": "1989-11-10",
+      "Phone": "90010003",
+      "Email": "charlie.lim@test.local",
+      "Address": "35 Clementi Rd"
+    },
+    {
+      "Id": 4,
+      "EmpNo": "E004",
+      "EmployeeName": "Diana Ng",
+      "Department": "Sales",
+      "Occupation": "Sales Executive",
+      "JobTitle": "Account Manager",
+      "Gender": "F",
+      "HiredDate": "2023-05-01",
+      "ResignDate": null,
+      "DOB": "1995-02-28",
+      "Phone": "90010004",
+      "Email": "diana.ng@test.local",
+      "Address": "48 Serangoon Ave"
+    },
+    {
+      "Id": 5,
+      "EmpNo": "E005",
+      "EmployeeName": "Edward Lee",
+      "Department": "Operations",
+      "Occupation": "Logistics Officer",
+      "JobTitle": "Logistics Coordinator",
+      "Gender": "M",
+      "HiredDate": "2019-09-18",
+      "ResignDate": null,
+      "DOB": "1991-06-05",
+      "Phone": "90010005",
+      "Email": "edward.lee@test.local",
+      "Address": "57 Jurong East St"
+    }
+  ]
+}
