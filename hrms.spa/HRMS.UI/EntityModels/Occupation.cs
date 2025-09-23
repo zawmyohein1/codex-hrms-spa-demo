@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,4 +20,6 @@ public class Occupation
 
     [ForeignKey(nameof(DepartmentId))]
     public Department? Department { get; set; }
+
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

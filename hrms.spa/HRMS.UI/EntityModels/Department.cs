@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.UI.EntityModels;
@@ -14,4 +15,5 @@ public class Department
     public string? Description { get; set; }
 
     public ICollection<Occupation> Occupations { get; set; } = new List<Occupation>();
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }
