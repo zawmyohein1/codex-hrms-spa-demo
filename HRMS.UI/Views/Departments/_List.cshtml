@@ -1,0 +1,37 @@
+@model IEnumerable<Department>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info" role="alert">
+        No departments found. Use the <i class="bi bi-plus-circle"></i> button to add one.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var department in Model)
+                {
+                    <tr>
+                        <td>@department.Name</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-1" data-action="edit" data-url="@Url.Action("Edit", new { id = department.Id })" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete" data-url="@Url.Action("Delete", new { id = department.Id })" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
