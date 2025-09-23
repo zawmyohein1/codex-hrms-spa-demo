@@ -1,0 +1,103 @@
+@model EmployeeListViewModel
+@{
+    var totalPages = Model.PageSize > 0 ? (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize) : 0;
+    var startIndex = ((Model.PageNumber - 1) * Model.PageSize) + 1;
+    var endIndex = startIndex + Model.Employees.Count() - 1;
+    if (endIndex > Model.TotalCount)
+    {
+        endIndex = Model.TotalCount;
+    }
+}
+
+@if (!Model.Employees.Any())
+{
+    <div class="alert alert-info" role="alert">
+        No employees found. Adjust the search or filters and try again.
+    </div>
+}
+else
+{
+    <div class="table-responsive mb-3">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Photo</th>
+                    <th scope="col">Emp No.</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Occupation</th>
+                    <th scope="col">Job Title</th>
+                    <th scope="col">Gender</th>
+                    <th scope="col">Hired</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var employee in Model.Employees)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(employee.PhotoUrl))
+                            {
+                                <img src="@Url.Content(employee.PhotoUrl)" alt="Photo of @employee.EmpName" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                            }
+                        </td>
+                        <td>@employee.EmpNo</td>
+                        <td>@employee.EmpName</td>
+                        <td>@employee.DepartmentName</td>
+                        <td>@employee.OccupationName</td>
+                        <td>@(string.IsNullOrWhiteSpace(employee.JobTitle) ? "-" : employee.JobTitle)</td>
+                        <td>@(string.IsNullOrWhiteSpace(employee.Gender) ? "-" : employee.Gender)</td>
+                        <td>@employee.HiredDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(employee.ResignDate.HasValue ? "Resigned" : "Active")</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-1" data-action="details" data-url="@Url.Action("Details", new { id = employee.Id })" title="View">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" data-action="edit" data-url="@Url.Action("Edit", new { id = employee.Id })" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete" data-url="@Url.Action("Delete", new { id = employee.Id })" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
+        <div class="text-muted">
+            Showing @startIndex-@endIndex of @Model.TotalCount employees
+        </div>
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Employees pages">
+                <ul class="pagination pagination-sm justify-content-lg-end mb-0">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : string.Empty)">
+                        <button type="button" class="page-link" data-action="page" data-page="@(Model.PageNumber - 1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
+                    </li>
+                    @for (var pageNo = 1; pageNo <= totalPages; pageNo++)
+                    {
+                        <li class="page-item @(pageNo == Model.PageNumber ? "active" : string.Empty)">
+                            <button type="button" class="page-link" data-action="page" data-page="@pageNo">@pageNo</button>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= totalPages ? "disabled" : string.Empty)">
+                        <button type="button" class="page-link" data-action="page" data-page="@(Model.PageNumber + 1)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
