@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Occupations";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-briefcase-fill me-2"></i>Occupations</h2>
+    <button type="button"
+            class="btn btn-outline-primary"
+            data-modal-url="@Url.Action("Create")"
+            data-modal-target="#modalForm"
+            aria-label="Add occupation">
+        <i class="bi bi-plus-circle"></i>
+    </button>
+</div>
+
+<div id="occupation-list" class="table-responsive"></div>
+
+<div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            hrms.loadList('#occupation-list', '@Url.Action("List")');
+        });
+    </script>
+}
