@@ -1,3 +1,34 @@
+#Enable Tow Factor Authenticaiton to Github Account
+
+#Create Repository on Github
+<img width="994" height="702" alt="image" src="https://github.com/user-attachments/assets/1b9e8787-434d-463f-b83d-f3722c1f850c" />
+
+#Enable Permission ChatGPT Codex Connector
+
+Github >> Setting>>
+<img width="287" height="730" alt="image" src="https://github.com/user-attachments/assets/866d8e43-2c53-4650-b939-8cd25b8d9567" />
+
+Github >> Setting >> Applicaiton 
+<img width="400" height="538" alt="image" src="https://github.com/user-attachments/assets/f05a524d-ad00-4b27-a8c1-6a184c93c84d" />
+<img width="1219" height="352" alt="image" src="https://github.com/user-attachments/assets/f5dc6a60-c408-4d5d-97bb-3a335db1575d" />
+
+Github >> Setting >> Applicaiton>>Installed GuitHub Apps>>ChatGPT Codex Connector>>Configure
+<img width="867" height="722" alt="image" src="https://github.com/user-attachments/assets/0b398c42-dab0-460c-b33b-c150edc6e362" />
+
+#Open Codex tab at Chat GPT
+<img width="860" height="355" alt="image" src="https://github.com/user-attachments/assets/530be4f9-387d-41fa-9a31-16bedac4978a" />
+<img width="1055" height="460" alt="image" src="https://github.com/user-attachments/assets/4a44e2bc-bd3f-4226-af14-c1463b52b198" />
+
+#Manage Enviroment 
+<img width="1706" height="428" alt="image" src="https://github.com/user-attachments/assets/2e384867-6f20-438c-9e24-195c0e41b33d" />
+
+Manage Enviroment >> Create Enviroment
+<img width="922" height="631" alt="image" src="https://github.com/user-attachments/assets/ae0249b9-df35-4929-b551-e8061aba489e" />
+
+<img width="1357" height="679" alt="image" src="https://github.com/user-attachments/assets/5b314c12-4246-4c36-8df2-1eae94923b28" />
+
+# Commit readme and .ingnore files to repository.
+
 # HRMS.SPA Demo
 
 This project is a **demo ASP.NET Core 8 MVC Single Page Application (SPA)** using **Entity Framework Core (Code First)**.  
